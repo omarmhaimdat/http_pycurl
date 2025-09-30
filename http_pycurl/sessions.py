@@ -112,9 +112,22 @@ class Session(object):
         c.setopt(pycurl.TIMEOUT, timeout)
 
         if proxies:
-            proxy_host, proxy_port = proxies.split(':')
-            c.setopt_string(pycurl.PROXY, proxy_host)
-            c.setopt(pycurl.PROXYPORT, int(proxy_port))
+            # 'proxies' is expected in requests format, e.g. {'http': 'http://user:pass@host:port'}
+            # Only http and https proxies are supported.
+            proxy_url = proxies.get('http') or proxies.get('https')
+            if proxy_url:
+                parsed = urlparse(proxy_url)
+                proxy_host = parsed.hostname
+                proxy_port = parsed.port
+                proxy_type = pycurl.PROXY_HTTP if parsed.scheme == 'http' else pycurl.PROXY_HTTPS
+                if proxy_host and proxy_port:
+                    c.setopt_string(pycurl.PROXY, proxy_host)
+                    c.setopt(pycurl.PROXYPORT, int(proxy_port))
+                    c.setopt(pycurl.PROXYTYPE, proxy_type)
+                    if parsed.username and parsed.password:
+                        # Set proxy authentication
+                        userpwd = f"{parsed.username}:{parsed.password}"
+                        c.setopt(pycurl.PROXYUSERPWD, userpwd)
 
         if allow_redirects:
             c.setopt(pycurl.FOLLOWLOCATION, True)
