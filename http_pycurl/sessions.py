@@ -119,7 +119,9 @@ class Session(object):
                 parsed = urlparse(proxy_url)
                 proxy_host = parsed.hostname
                 proxy_port = parsed.port
-                proxy_type = pycurl.PROXY_HTTP if parsed.scheme == 'http' else pycurl.PROXY_HTTPS
+                schema = parsed.scheme
+                schema_to_pycurl = {'http': pycurl.PROXYTYPE_HTTP, 'https': 2, 'socks5': pycurl.PROXYTYPE_SOCKS5, 'socks4': pycurl.PROXYTYPE_SOCKS4}
+                proxy_type = schema_to_pycurl.get(schema, pycurl.PROXYTYPE_HTTP)
                 if proxy_host and proxy_port:
                     c.setopt_string(pycurl.PROXY, proxy_host)
                     c.setopt(pycurl.PROXYPORT, int(proxy_port))
