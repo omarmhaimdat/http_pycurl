@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="http_pycurl",
-    version="1.0.2",
+    version="1.0.3",
     author="pythonqi",
     author_email="pythonqi@outlook.com",
     description="http_pycurl rewraps pycurl.",
